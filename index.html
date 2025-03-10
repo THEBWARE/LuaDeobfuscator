@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Lua Deobfuscator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ccc;
+      overflow-x: auto;
+    }
+  </style>
+  <!-- Include Fengari locally -->
+  <script src="fengari-web.js"></script>
+</head>
+<body>
+  <h1>Advanced Lua Deobfuscator</h1>
+  <textarea id="input" placeholder="Paste your Luraph-obfuscated Lua code here..."></textarea>
+  <button onclick="deobfuscate()">Deobfuscate</button>
+  <h2>Deobfuscated Code:</h2>
+  <pre id="output"></pre>
+
+  <script>
+    // Ensure Fengari is loaded before using it
+    function deobfuscate() {
+      const input = document.getElementById('input').value;
+      const output = document.getElementById('output');
+
+      try {
+        // Check if Fengari is loaded
+        if (typeof fengari === 'undefined') {
+          output.textContent = "Error: Fengari library is not loaded. Please ensure fengari-web.js is in the same directory.";
+          return;
+        }
+
+        // Initialize Fengari Lua environment
+        const lua = new fengari.Interpreter();
+
+        // Hook print function to capture runtime output
+        let capturedOutput = "";
+        lua.global.set("print", function(...args) {
+          capturedOutput += args.map(arg => fengari.tostring(arg)).join("\t") + "\n";
+        });
+
+        // Execute the obfuscated Lua code
+        lua.load(input)();
+
+        // Display captured runtime output
+        output.textContent = capturedOutput || "No runtime output captured.";
+      } catch (error) {
+        output.textContent = `Error during deobfuscation: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
